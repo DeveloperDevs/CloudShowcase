@@ -1,0 +1,7 @@
+- name: Configure Base Template
+  hosts: all
+  become: yes
+
+  roles:
+    - legacy
+    - java
