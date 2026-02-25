@@ -14,7 +14,7 @@ variable "region" {
 
 source "amazon-ebs" "amazon_linux" {
   region        = var.region
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   ssh_username  = "ec2-user"
   ami_name = "base-template-{{timestamp}}"
 
