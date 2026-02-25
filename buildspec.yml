@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Installing dependencies
+      - curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+      - sudo apt-get update
+      - sudo apt-get install -y packer
+
+  build:
+    commands:
+      - echo Initializing Packer
+      - packer init .
+      - packer validate amazon-linux.pkr.hcl
+      - packer build amazon-linux.pkr.hcl
+
+artifacts:
+  files:
+    - '**/*'
