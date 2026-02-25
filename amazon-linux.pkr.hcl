@@ -54,14 +54,16 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo yum install -y python3 python3-pip",
-      "sudo pip3 install 'ansible<12'"
+      "sudo amazon-linux-extras enable python3.9",
+      "sudo yum install -y python39 python39-pip",
+      "sudo alternatives --set python3 /usr/bin/python3.9",
+      "sudo pip3.9 install ansible"
     ]
   }
 
   provisioner "ansible" {
     playbook_file     = "ansible/playbook.yml"
-    extra_arguments   = ["-e", "ansible_python_interpreter=/usr/bin/python3"]
+    extra_arguments = ["-e", "ansible_python_interpreter=/usr/bin/python3.9"]
     user              = "ec2-user"
   }
 }
