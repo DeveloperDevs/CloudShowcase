@@ -13,11 +13,10 @@ variable "region" {
 }
 
 source "amazon-ebs" "amazon_linux" {
-
   region        = var.region
   instance_type = "t2.micro"
   ssh_username  = "ec2-user"
-  ami_name = "custom-base-ami-{{timestamp}}"
+  ami_name = "base-template-{{timestamp}}"
 
   associate_public_ip_address = true
 
@@ -50,38 +49,15 @@ source "amazon-ebs" "amazon_linux" {
 }
 
 build {
-  name    = "amazon-linux-free-tier-build"
+  name    = "amazon-linux-build"
   sources = ["source.amazon-ebs.amazon_linux"]
 
   provisioner "shell" {
-    inline = [
-
-      # Update system
-      "sudo yum update -y",
-
-      # Install AWS CLI + Ruby
-      "sudo yum install -y awscli ruby",
-
-      # Install CodeDeploy Agent
-      "sudo yum install -y wget",
-      "cd /home/ec2-user",
-      "wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install",
-      "chmod +x ./install",
-      "sudo ./install auto",
-      "sudo systemctl enable codedeploy-agent",
-
-      # Format + mount secondary volume
-      "sudo mkfs -t xfs /dev/xvdb",
-      "sudo mkdir -p /opt/data",
-      "sudo mount /dev/xvdb /opt/data",
-      "echo '/dev/xvdb /opt/data xfs defaults,nofail 0 2' | sudo tee -a /etc/fstab",
-
-      # CodeDeploy scripts
-      "sudo mkdir -p /opt/codedeploy-scripts",
-      "echo 'echo Hello from CodeDeploy script' | sudo tee /opt/codedeploy-scripts/install.sh",
-      "sudo chmod +x /opt/codedeploy-scripts/install.sh",
-
-      "echo 'AMI Provisioning Complete'"
+    scripts = [
+      "scripts/install_dependencies.sh",
+      "scripts/install_codedeploy.sh",
+      "scripts/partition_disks.sh",
+      "scripts/download_artifacts.sh"
     ]
   }
 }
