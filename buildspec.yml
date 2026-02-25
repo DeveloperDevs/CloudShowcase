@@ -4,9 +4,9 @@ phases:
   install:
     commands:
       - echo Installing dependencies
-      - curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-      - sudo apt-get update
-      - sudo apt-get install -y packer
+      - sudo yum install -y yum-utils
+      - sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+      - sudo yum -y install packer
 
   build:
     commands:
