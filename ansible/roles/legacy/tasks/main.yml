@@ -1,0 +1,23 @@
+---
+- name: Copy scripts to instance
+  copy:
+    src: "{{ item }}"
+    dest: "/tmp/{{ item | basename }}"
+    mode: '0755'
+  loop:
+    - ../../scripts/install_dependencies.sh
+    - ../../scripts/install_codedeploy.sh
+    - ../../scripts/partition_disks.sh
+    - ../../scripts/download_artifacts.sh
+
+- name: Run install_dependencies
+  command: /tmp/install_dependencies.sh
+
+- name: Run install_codedeploy
+  command: /tmp/install_codedeploy.sh
+
+- name: Run partition_disks
+  command: /tmp/partition_disks.sh
+
+- name: Run download_artifacts
+  command: /tmp/download_artifacts.sh

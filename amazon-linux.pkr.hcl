@@ -52,12 +52,8 @@ build {
   name    = "amazon-linux-build"
   sources = ["source.amazon-ebs.amazon_linux"]
 
-  provisioner "shell" {
-    scripts = [
-      "scripts/install_dependencies.sh",
-      "scripts/install_codedeploy.sh",
-      "scripts/partition_disks.sh",
-      "scripts/download_artifacts.sh"
-    ]
+  provisioner "ansible" {
+    playbook_file = "ansible/playbook.yml"
+    user          = "ec2-user"
   }
 }
