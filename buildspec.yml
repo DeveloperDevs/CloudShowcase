@@ -9,6 +9,8 @@ phases:
       - sudo yum -y install packer
       - sudo yum install -y python3
       - pip3 install ansible
+      - echo Installing Packer Ansible plugin
+      - packer plugin install github.com/hashicorp/ansible
 
   build:
     commands:
