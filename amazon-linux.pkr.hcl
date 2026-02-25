@@ -52,6 +52,13 @@ build {
   name    = "amazon-linux-build"
   sources = ["source.amazon-ebs.amazon_linux"]
 
+  provisioner "shell" {
+    inline = [
+      "sudo yum install -y python3 python3-pip",
+      "sudo pip3 install ansible<12"  # match version compatible with Python 3.9
+    ]
+  }
+
   provisioner "ansible" {
     playbook_file     = "ansible/playbook.yml"
     extra_arguments   = ["-e", "ansible_python_interpreter=/usr/bin/python3"]
