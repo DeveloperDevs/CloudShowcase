@@ -20,10 +20,10 @@ source "amazon-ebs" "amazon_linux" {
 
   associate_public_ip_address = true
 
-  # Pull latest Amazon Linux
+  # Pull test Amazon Linux 2
   source_ami_filter {
     filters = {
-      name                = "al2023-ami-*-x86_64"
+      name                = "amzn2-ami-hvm-*-x86_64-gp2"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
