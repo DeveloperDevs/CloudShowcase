@@ -55,7 +55,7 @@ build {
   provisioner "shell" {
     inline = [
       "sudo yum install -y python3 python3-pip",
-      "sudo pip3 install ansible<12"  # match version compatible with Python 3.9
+      "sudo pip3 install 'ansible<12'"
     ]
   }
 
