@@ -53,7 +53,8 @@ build {
   sources = ["source.amazon-ebs.amazon_linux"]
 
   provisioner "ansible" {
-    playbook_file = "ansible/playbook.yml"
-    user          = "ec2-user"
+    playbook_file     = "ansible/playbook.yml"
+    extra_arguments   = ["-e", "ansible_python_interpreter=/usr/bin/python3"]
+    user              = "ec2-user"
   }
 }
