@@ -1,4 +1,4 @@
-**Note:** This is supposed to be a simple showcase of some of the things I worked on in Cloud. This is not supposed to be a faithful recreation of the production ready Cloud infrastructure from my job, just a very watered down showcase with similar concepts.
+**Note:** This is supposed to be a simple showcase of some of the things I worked on in Cloud. This is not supposed to be a very faithful recreation of the actual Cloud infrastructure from my job, just a watered down showcase with similar concepts.
 
 Let's break down a few of the processes that are in this repository, and the items that contribute to each process
 </br>
