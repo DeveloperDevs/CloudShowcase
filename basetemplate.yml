@@ -66,6 +66,7 @@ Resources:
           # IAM PassRole if Packer uses instance profile
           - Effect: Allow
             Action:
+              - iam:GetInstanceProfile
               - iam:PassRole
             Resource: "*"
 
