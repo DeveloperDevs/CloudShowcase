@@ -25,7 +25,9 @@ Once the CloudFormation stack is created, we can trigger a CodeBuild job to crea
 
 **Internal Build:**
 
-Resume Snippet: Used Step Functions / Logic Apps & Ansible to generate additional AMIs from the base template, with MicroStrategy product-related libraries/configurations. Used for internal builds
+Resume Snippet: Used Step Functions / Logic Apps & Ansible to generate additional AMIs from the base template, with MicroStrategy product-related libraries/configurations. Used for internal builds. 
+
+Every release (monthly or quarterly), an internal build will be promoted to a release build and be made visible to everyone through the Cloud Console. The primary differences between internal and release builds is the visibility and the region presence (internal builds are only in us-east-1, release builds are in all supported regions)
 
 For the purposes of this showcase, I will not be adding the Azure equivalent, in order to save time. 
 
