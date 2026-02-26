@@ -6,7 +6,7 @@ Let's break down a few of the processes that are in this repository, and the ite
 
 **Base Template:**
 
-Used CloudFormation, CodeBuild, Packer & Ansible to generate base AMIs with essential libraries and core dependencies.
+Resume Snippet: Used CloudFormation, CodeBuild, Packer & Ansible to generate base AMIs with essential libraries and core dependencies.
 
 It starts with the CloudFormation template, **basetemplate.yml**, which we will use to deploy the Infrastructure needed for the Base Template process. This contains:
 - A CodeBuild Project
@@ -25,5 +25,7 @@ Once the CloudFormation stack is created, we can trigger a CodeBuild job to crea
 
 **Internal Build:**
 
-Used Step Functions / Logic Apps & Ansible to generate additional AMIs from the base template, with MicroStrategy product-related libraries/configurations. Used for internal builds
+Resume Snippet: Used Step Functions / Logic Apps & Ansible to generate additional AMIs from the base template, with MicroStrategy product-related libraries/configurations. Used for internal builds
+
+For the purposes of this showcase, I will not be adding the Azure equivalent, in order to save time. 
 
