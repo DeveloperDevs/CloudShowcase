@@ -17,7 +17,8 @@ Once the CloudFormation stack is created, we can trigger a CodeBuild job to crea
 - Run Packer Build from the Template
 - Packer will launch a temporary VM
 - On the VM, Packer will run Ansible, which will run its playbook
-- After the playbook is run, Packer will stop the VM, take a snapshot and then create an AMI with the snapshot. The AMI will be the output, in a production environment, that would be passed to the next process
+- After the playbook is run, Packer will stop the VM, take a snapshot and then create an AMI with the snapshot.
+- The AMI will be the output, in a production environment, that would be passed to the next process
 
 **Internal Build:**
 Used Step Functions / Logic Apps & Ansible to generate additional AMIs from the base template, with MicroStrategy product-related libraries/configurations. Used for internal builds
