@@ -21,6 +21,7 @@ source "amazon-ebs" "al2023" {
   instance_type = "t3.micro"
   ssh_username  = "ec2-user"
   ami_name      = "base-template-al2023-{{timestamp}}"
+  iam_instance_profile = "PackerS3AccessProfile"
 
   associate_public_ip_address = true
 
