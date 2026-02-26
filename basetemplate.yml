@@ -4,7 +4,7 @@ Description: CodeBuild project for Packer AMI build
 Parameters:
   ProjectName:
     Type: String
-    Default: packer-ami-build
+    Default: build-base-template
 
 Resources:
 
@@ -97,7 +97,7 @@ Resources:
         PrivilegedMode: false
       Source:
         Type: GITHUB
-        Location: https://github.com/DeveloperDevs/CloudShowcase.git
+        Location: https://github.com/DeveloperDevs/CloudShowcase
         BuildSpec: buildspec.yml
       TimeoutInMinutes: 60
 
