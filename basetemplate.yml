@@ -11,7 +11,7 @@ Resources:
   BaseTemplateBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: base-template
+      BucketName: base-template-devin
       VersioningConfiguration:
         Status: Enabled
 
