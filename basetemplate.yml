@@ -6,6 +6,10 @@ Parameters:
     Type: String
     Default: build-base-template
 
+  CodeConnectionArn:
+    Type: String
+    Description: ARN of the CodeConnections connection
+
 Resources:
 
   BaseTemplateBucket:
@@ -64,6 +68,11 @@ Resources:
             Action:
               - iam:PassRole
             Resource: "*"
+        
+          - Effect: Allow
+            Action:
+              - codeconnections:UseConnection
+            Resource: !Ref CodeConnectionArn
 
           # CloudWatch Logs
           - Effect: Allow
