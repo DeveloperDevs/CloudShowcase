@@ -103,7 +103,7 @@ Resources:
 
 Outputs:
   CodeBuildProjectName:
-    Value: !Ref BuildBaseTemplate
+    Value: !Ref CodeBuildProject
 
   S3BucketName:
     Value: !Ref BaseTemplateBucket
