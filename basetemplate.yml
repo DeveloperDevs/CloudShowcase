@@ -6,10 +6,6 @@ Parameters:
     Type: String
     Default: build-base-template
 
-  CodeConnectionArn:
-    Type: String
-    Description: ARN of the CodeConnections connection
-
 Resources:
 
   BaseTemplateBucket:
@@ -68,11 +64,6 @@ Resources:
             Action:
               - iam:PassRole
             Resource: "*"
-        
-          - Effect: Allow
-            Action:
-              - codeconnections:UseConnection
-            Resource: !Ref CodeConnectionArn
 
           # CloudWatch Logs
           - Effect: Allow
@@ -89,8 +80,8 @@ Resources:
               - s3:GetObject
               - s3:ListBucket
             Resource:
-              - !Sub "arn:aws:s3:::base-template"
-              - !Sub "arn:aws:s3:::base-template/*"
+              - !Sub "arn:aws:s3:::base-template-devin"
+              - !Sub "arn:aws:s3:::base-template-devin/*"
 
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
@@ -108,9 +99,6 @@ Resources:
         Type: GITHUB
         Location: https://github.com/DeveloperDevs/CloudShowcase
         BuildSpec: buildspec.yml
-        Auth:
-          Type: CODECONNECTIONS
-          Resource: !Ref CodeConnectionArn
       TimeoutInMinutes: 60
 
 Outputs:
