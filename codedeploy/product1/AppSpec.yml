@@ -1,0 +1,17 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /opt/product1
+
+hooks:
+  AfterInstall:
+    - location: scripts/product1.sh
+      timeout: 900
+      runas: root
+
+  ApplicationStart:
+    - location: scripts/product1configure.sh
+      timeout: 600
+      runas: root

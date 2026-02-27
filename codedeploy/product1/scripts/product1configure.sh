@@ -1,0 +1,1 @@
+echo "CodeDeploy Product Script Configuration"
