@@ -15,7 +15,7 @@ Once the CloudFormation stack is created, we can trigger a CodeBuild job to crea
 - Install Packer, Ansible, Python, etc.
 - Initialize Packer, validate the Packer template (**amazon-linux.pkr.hcl**) and run Packer Build from the Template
 - Packer will launch a temporary VM
-- On the VM, Packer will run Ansible, which will run its playbook
+- On the VM, Packer will run Ansible, which will run its playbook (located at **/ansible/playbook.yml**)
 - After the playbook is run, Packer will stop the VM, take a snapshot and then create an AMI with the snapshot.
 - The AMI will be the output that would be passed to the next process
 </br>
