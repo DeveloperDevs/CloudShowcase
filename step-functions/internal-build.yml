@@ -201,7 +201,12 @@
       "Parameters": {
         "StateMachineArn": "arn:aws:states:us-east-1:326255650286:stateMachine:Build-QA",
         "Input": {
-          "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+          "InstanceId.$": "$.Instance.Instances[0].InstanceId",
+          "BaseAmiId.$": "$.BaseAmiId",
+          "Paid.$": "$.Paid",
+          "NewAmiId.$": "$.Image.ImageId",
+          "NewAmiName.$": "$.DescribeImage.Images[0].Name",
+          "ExecutionId.$": "$$.Execution.Id"
         }
       },
       "Next": "TerminateInstance"
