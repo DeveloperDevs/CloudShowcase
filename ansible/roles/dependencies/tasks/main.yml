@@ -18,3 +18,8 @@
     name: amazon-ssm-agent
     state: started
     enabled: true
+
+- name: Install Ruby
+  yum:
+    name: ruby
+    state: present
