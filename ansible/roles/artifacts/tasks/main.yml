@@ -1,0 +1,13 @@
+- name: Ensure CodeDeploy scripts directory exists
+  file:
+    path: /opt/codedeploy-scripts
+    state: directory
+    mode: '0755'
+
+- name: Download product1.zip from S3
+  aws_s3:
+    bucket: base-template-devin
+    object: product1.zip
+    dest: /opt/codedeploy-scripts/product1.zip
+    mode: '0755'
+    region: us-east-1

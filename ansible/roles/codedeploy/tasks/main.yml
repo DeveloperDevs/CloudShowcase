@@ -1,0 +1,19 @@
+- name: Install dependencies for CodeDeploy
+  yum:
+    name: wget
+    state: present
+
+- name: Download CodeDeploy installer
+  get_url:
+    url: https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install
+    dest: /tmp/install_codedeploy
+    mode: '0755'
+
+- name: Run CodeDeploy installer
+  command: /tmp/install_codedeploy auto
+
+- name: Enable CodeDeploy Agent
+  systemd:
+    name: codedeploy-agent
+    state: started
+    enabled: true

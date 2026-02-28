@@ -1,0 +1,20 @@
+- name: Update all packages
+  yum:
+    name: "*"
+    state: latest
+
+- name: Install AWS CLI
+  yum:
+    name: awscli
+    state: present
+
+- name: Install SSM Agent
+  yum:
+    name: amazon-ssm-agent
+    state: present
+
+- name: Ensure SSM Agent is running
+  systemd:
+    name: amazon-ssm-agent
+    state: started
+    enabled: true

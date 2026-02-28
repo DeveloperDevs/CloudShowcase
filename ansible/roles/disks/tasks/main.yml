@@ -1,0 +1,17 @@
+- name: Format /dev/xvdb as XFS
+  filesystem:
+    fstype: xfs
+    dev: /dev/xvdb
+
+- name: Ensure mount directory exists
+  file:
+    path: /opt/data
+    state: directory
+
+- name: Mount /dev/xvdb to /opt/data
+  mount:
+    path: /opt/data
+    src: /dev/xvdb
+    fstype: xfs
+    state: mounted
+    opts: defaults,nofail
