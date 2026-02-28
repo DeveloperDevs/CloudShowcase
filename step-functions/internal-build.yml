@@ -28,13 +28,11 @@
       "ResultPath": "$.Instance",
       "Next": "WaitForInstanceRunning"
     },
-
     "WaitForInstanceRunning": {
       "Type": "Wait",
       "Seconds": 15,
       "Next": "CheckInstanceState"
     },
-
     "CheckInstanceState": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ec2:describeInstances",
@@ -44,7 +42,6 @@
       "ResultPath": "$.DescribeInstance",
       "Next": "IsInstanceRunning"
     },
-
     "IsInstanceRunning": {
       "Type": "Choice",
       "Choices": [
@@ -56,12 +53,11 @@
       ],
       "Default": "WaitForInstanceRunning"
     },
-
     "InvokeDownloadLambda": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
-        "FunctionName": "DownloadProductToInstance",
+        "FunctionName": "arn:aws:lambda:us-east-1:326255650286:function:DownloadScriptsFromS3:$LATEST",
         "Payload": {
           "InstanceId.$": "$.Instance.Instances[0].InstanceId",
           "Bucket": "build-devin",
@@ -71,7 +67,6 @@
       "ResultPath": "$.LambdaResult",
       "Next": "Choice"
     },
-
     "Choice": {
       "Type": "Choice",
       "Choices": [
@@ -86,7 +81,6 @@
       ],
       "Default": "CreateAMI"
     },
-
     "CreateDeployment": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:codedeploy:createDeployment",
@@ -105,13 +99,11 @@
       "ResultPath": "$.Deployment",
       "Next": "WaitForDeployment"
     },
-
     "WaitForDeployment": {
       "Type": "Wait",
       "Seconds": 20,
       "Next": "CheckDeploymentStatus"
     },
-
     "CheckDeploymentStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:codedeploy:getDeployment",
@@ -121,7 +113,6 @@
       "ResultPath": "$.DeploymentStatus",
       "Next": "IsDeploymentComplete"
     },
-
     "IsDeploymentComplete": {
       "Type": "Choice",
       "Choices": [
@@ -138,7 +129,6 @@
       ],
       "Default": "WaitForDeployment"
     },
-
     "CreateAMI": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ec2:createImage",
@@ -150,13 +140,11 @@
       "ResultPath": "$.Image",
       "Next": "WaitForAMI"
     },
-
     "WaitForAMI": {
       "Type": "Wait",
       "Seconds": 20,
       "Next": "CheckAMIStatus"
     },
-
     "CheckAMIStatus": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ec2:describeImages",
@@ -166,7 +154,6 @@
       "ResultPath": "$.DescribeImage",
       "Next": "IsAMIAvailable"
     },
-
     "IsAMIAvailable": {
       "Type": "Choice",
       "Choices": [
@@ -178,23 +165,31 @@
       ],
       "Default": "WaitForAMI"
     },
-
     "WriteToDynamoDB": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:dynamodb:putItem",
       "Parameters": {
         "TableName": "AmiRegistry",
         "Item": {
-          "ID": { "S.$": "$.Image.ImageId" },
-          "BaseAmi": { "S.$": "$.BaseAmiId" },
-          "AmiName": { "S.$": "$.DescribeImage.Images[0].Name" },
-          "CreatedAt": { "S.$": "$$.Execution.StartTime" },
-          "Status": { "S": "ACTIVE" }
+          "ID": {
+            "S.$": "$.Image.ImageId"
+          },
+          "BaseAmi": {
+            "S.$": "$.BaseAmiId"
+          },
+          "AmiName": {
+            "S.$": "$.DescribeImage.Images[0].Name"
+          },
+          "CreatedAt": {
+            "S.$": "$$.Execution.StartTime"
+          },
+          "Status": {
+            "S": "ACTIVE"
+          }
         }
       },
       "Next": "Trigger QA Step Function"
     },
-
     "Trigger QA Step Function": {
       "Type": "Task",
       "Resource": "arn:aws:states:::states:startExecution.sync:2",
@@ -211,7 +206,6 @@
       },
       "Next": "TerminateInstance"
     },
-
     "TerminateInstance": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ec2:terminateInstances",
@@ -220,7 +214,6 @@
       },
       "End": true
     },
-
     "FailState": {
       "Type": "Fail",
       "Cause": "CodeDeploy Failed"
