@@ -1,0 +1,209 @@
+{
+  "Comment": "AMI Factory Pipeline",
+  "StartAt": "LaunchInstance",
+  "States": {
+    "LaunchInstance": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ec2:runInstances",
+      "Parameters": {
+        "ImageId.$": "$.BaseAmiId",
+        "InstanceType": "t3.micro",
+        "MinCount": 1,
+        "MaxCount": 1,
+        "IamInstanceProfile": {
+          "Name": "PackerS3AccessProfile"
+        },
+        "TagSpecifications": [
+          {
+            "ResourceType": "instance",
+            "Tags": [
+              {
+                "Key": "Role",
+                "Value": "AmiBuilder"
+              }
+            ]
+          }
+        ]
+      },
+      "ResultPath": "$.Instance",
+      "Next": "WaitForInstanceRunning"
+    },
+    "WaitForInstanceRunning": {
+      "Type": "Wait",
+      "Seconds": 15,
+      "Next": "CheckInstanceState"
+    },
+    "CheckInstanceState": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ec2:describeInstances",
+      "Parameters": {
+        "InstanceIds.$": "States.Array($.Instance.Instances[0].InstanceId)"
+      },
+      "ResultPath": "$.DescribeInstance",
+      "Next": "IsInstanceRunning"
+    },
+    "IsInstanceRunning": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.DescribeInstance.Reservations[0].Instances[0].State.Name",
+          "StringEquals": "running",
+          "Next": "Choice"
+        }
+      ],
+      "Default": "WaitForInstanceRunning"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "CreateDeployment",
+          "Assign": {
+            "Paid.$": "$.Paid"
+          },
+          "Variable": "$.Paid",
+          "BooleanEquals": true
+        }
+      ],
+      "Default": "CreateAMI"
+    },
+    "CreateDeployment": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:codedeploy:createDeployment",
+      "Parameters": {
+        "ApplicationName": "AmiBuilderApp",
+        "DeploymentGroupName": "AmiBuilderGroup",
+        "Revision": {
+          "RevisionType": "S3",
+          "S3Location": {
+            "Bucket": "build-devin",
+            "Key": "product1.zip",
+            "BundleType": "zip"
+          }
+        }
+      },
+      "ResultPath": "$.Deployment",
+      "Next": "WaitForDeployment"
+    },
+    "WaitForDeployment": {
+      "Type": "Wait",
+      "Seconds": 20,
+      "Next": "CheckDeploymentStatus"
+    },
+    "CheckDeploymentStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:codedeploy:getDeployment",
+      "Parameters": {
+        "DeploymentId.$": "$.Deployment.deploymentId"
+      },
+      "ResultPath": "$.DeploymentStatus",
+      "Next": "IsDeploymentComplete"
+    },
+    "IsDeploymentComplete": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "CreateAMI",
+          "Or": [
+            {
+              "Variable": "$.DeploymentStatus.deploymentInfo.status",
+              "StringEquals": "Succeeded"
+            }
+          ]
+        },
+        {
+          "Variable": "$.DeploymentStatus.deploymentInfo.status",
+          "StringEquals": "Failed",
+          "Next": "FailState"
+        }
+      ],
+      "Default": "IsDeploymentComplete"
+    },
+    "CreateAMI": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ec2:createImage",
+      "Parameters": {
+        "InstanceId.$": "$.Instance.Instances[0].InstanceId",
+        "Name.$": "States.Format('build-ami-{}', States.MathRandom(100000, 1000000))",
+        "NoReboot": true
+      },
+      "ResultPath": "$.Image",
+      "Next": "WaitForAMI"
+    },
+    "WaitForAMI": {
+      "Type": "Wait",
+      "Seconds": 20,
+      "Next": "CheckAMIStatus"
+    },
+    "CheckAMIStatus": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ec2:describeImages",
+      "Parameters": {
+        "ImageIds.$": "States.Array($.Image.ImageId)"
+      },
+      "ResultPath": "$.DescribeImage",
+      "Next": "IsAMIAvailable"
+    },
+    "IsAMIAvailable": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.DescribeImage.Images[0].State",
+          "StringEquals": "available",
+          "Next": "WriteToDynamoDB"
+        }
+      ],
+      "Default": "WaitForAMI"
+    },
+    "WriteToDynamoDB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:putItem",
+      "Parameters": {
+        "TableName": "AmiRegistry",
+        "Item": {
+          "ID": {
+            "S.$": "$.Image.ImageId"
+          },
+          "BaseAmi": {
+            "S.$": "$.BaseAmiId"
+          },
+          "AmiName": {
+            "S.$": "$.DescribeImage.Images[0].Name"
+          },
+          "CreatedAt": {
+            "S.$": "$$.Execution.StartTime"
+          },
+          "Status": {
+            "S": "ACTIVE"
+          }
+        }
+      },
+      "Next": "Trigger QA Step Function",
+      "ResultPath": "$.Image"
+    },
+    "Trigger QA Step Function": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Parameters": {
+        "StateMachineArn": "arn:aws:states:us-east-1:326255650286:stateMachine:Build-QA",
+        "Input": {
+          "StatePayload": "Hello from Step Functions!",
+          "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+        }
+      },
+      "Next": "TerminateInstance"
+    },
+    "TerminateInstance": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ec2:terminateInstances",
+      "Parameters": {
+        "InstanceIds.$": "States.Array($.Instance.Instances[0].InstanceId)"
+      },
+      "End": true
+    },
+    "FailState": {
+      "Type": "Fail",
+      "Cause": "CodeDeploy Failed"
+    }
+  }
+}
