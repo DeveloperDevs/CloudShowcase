@@ -1,5 +1,5 @@
 {
-  "Comment": "AMI Factory Pipeline",
+  "Comment": "AMI Factory Pipeline - Main Step Function (No Catch)",
   "StartAt": "LaunchInstance",
   "States": {
     "LaunchInstance": {
@@ -71,14 +71,14 @@
           "Paid.$": "$.Paid"
         }
       },
-      "ResultPath": "$.LambdaResult",
+      "ResultPath": "$.Download",
       "Next": "Choice"
     },
     "Choice": {
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.LambdaResult.Payload.Paid",
+          "Variable": "$.Paid",
           "BooleanEquals": true,
           "Next": "CreateDeployment"
         }
@@ -142,8 +142,8 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ec2:createImage",
       "Parameters": {
-        "InstanceId.$": "$.LambdaResult.Payload.InstanceId",
-        "Name.$": "States.Format('build-ami-{}', States.MathRandom(100000, 1000000))",
+        "InstanceId.$": "$.Instance.Instances[0].InstanceId",
+        "Name.$": "States.Format('build-ami-{}', States.MathRandom(100000,1000000))",
         "NoReboot": true
       },
       "ResultPath": "$.Image",
@@ -184,7 +184,7 @@
             "S.$": "$.Image.ImageId"
           },
           "BaseAmi": {
-            "S.$": "$.LambdaResult.Payload.BaseAmiId"
+            "S.$": "$.BaseAmiId"
           },
           "AmiName": {
             "S.$": "$.DescribeImage.Images[0].Name"
@@ -197,13 +197,17 @@
           }
         }
       },
-      "Next": "TerminateInstance"
+      "Next": "InvokeBuildQA"
     },
-    "TerminateInstance": {
+    "InvokeBuildQA": {
       "Type": "Task",
-      "Resource": "arn:aws:states:::aws-sdk:ec2:terminateInstances",
+      "Resource": "arn:aws:states:::states:startExecution",
       "Parameters": {
-        "InstanceIds.$": "States.Array($.LambdaResult.Payload.InstanceId)"
+        "StateMachineArn": "arn:aws:states:us-east-1:326255650286:stateMachine:Build-QA",
+        "Input": {
+          "InstanceId.$": "$.Instance.Instances[0].InstanceId",
+          "justCleanup": false
+        }
       },
       "End": true
     },
