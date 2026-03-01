@@ -6,7 +6,7 @@ ssm = boto3.client("ssm")
 
 def lambda_handler(event, context):
 
-    instance_id = event["Instance"]["Instances"][0]["InstanceId"]
+    instance_id = event.get("InstanceId")
     base_ami_id = event.get("BaseAmiId")
     paid = event.get("Paid", False)
 
