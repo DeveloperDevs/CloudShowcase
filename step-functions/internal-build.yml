@@ -48,12 +48,12 @@
         {
           "Variable": "$.DescribeInstance.Reservations[0].Instances[0].State.Name",
           "StringEquals": "running",
-          "Next": "Wait After Provision"
+          "Next": "WaitAfterProvision"
         }
       ],
       "Default": "WaitForInstanceRunning"
     },
-    "Wait After Provision": {
+    "WaitAfterProvision": {
       "Type": "Wait",
       "Seconds": 60,
       "Next": "InvokeDownloadLambda"
@@ -78,12 +78,9 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Next": "CreateDeployment",
-          "Assign": {
-            "Paid.$": "$.Paid"
-          },
-          "Variable": "$.Paid",
-          "BooleanEquals": true
+          "Variable": "$.LambdaResult.Payload.Paid",
+          "BooleanEquals": true,
+          "Next": "CreateDeployment"
         }
       ],
       "Default": "CreateAMI"
@@ -124,9 +121,9 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Next": "Wait After CodeDeploy",
           "Variable": "$.DeploymentStatus.deploymentInfo.status",
-          "StringEquals": "Succeeded"
+          "StringEquals": "Succeeded",
+          "Next": "WaitAfterCodeDeploy"
         },
         {
           "Variable": "$.DeploymentStatus.deploymentInfo.status",
@@ -136,7 +133,7 @@
       ],
       "Default": "WaitForDeployment"
     },
-    "Wait After CodeDeploy": {
+    "WaitAfterCodeDeploy": {
       "Type": "Wait",
       "Seconds": 60,
       "Next": "CreateAMI"
@@ -145,7 +142,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ec2:createImage",
       "Parameters": {
-        "InstanceId.$": "$.Instance.Instances[0].InstanceId",
+        "InstanceId.$": "$.LambdaResult.Payload.InstanceId",
         "Name.$": "States.Format('build-ami-{}', States.MathRandom(100000, 1000000))",
         "NoReboot": true
       },
@@ -187,7 +184,7 @@
             "S.$": "$.Image.ImageId"
           },
           "BaseAmi": {
-            "S.$": "$.BaseAmiId"
+            "S.$": "$.LambdaResult.Payload.BaseAmiId"
           },
           "AmiName": {
             "S.$": "$.DescribeImage.Images[0].Name"
@@ -206,7 +203,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ec2:terminateInstances",
       "Parameters": {
-        "InstanceIds.$": "States.Array($.Instance.Instances[0].InstanceId)"
+        "InstanceIds.$": "States.Array($.LambdaResult.Payload.InstanceId)"
       },
       "End": true
     },
