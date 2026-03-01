@@ -48,10 +48,15 @@
         {
           "Variable": "$.DescribeInstance.Reservations[0].Instances[0].State.Name",
           "StringEquals": "running",
-          "Next": "InvokeDownloadLambda"
+          "Next": "Wait After Provision"
         }
       ],
       "Default": "WaitForInstanceRunning"
+    },
+    "Wait After Provision": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "InvokeDownloadLambda"
     },
     "InvokeDownloadLambda": {
       "Type": "Task",
@@ -61,7 +66,9 @@
         "Payload": {
           "InstanceId.$": "$.Instance.Instances[0].InstanceId",
           "Bucket": "build-devin",
-          "Key": "product1.zip"
+          "Key": "product1.zip",
+          "BaseAmiId.$": "$.BaseAmiId",
+          "Paid.$": "$.Paid"
         }
       },
       "ResultPath": "$.LambdaResult",
@@ -117,7 +124,7 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Next": "CreateAMI",
+          "Next": "Wait After CodeDeploy",
           "Variable": "$.DeploymentStatus.deploymentInfo.status",
           "StringEquals": "Succeeded"
         },
@@ -128,6 +135,11 @@
         }
       ],
       "Default": "WaitForDeployment"
+    },
+    "Wait After CodeDeploy": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "CreateAMI"
     },
     "CreateAMI": {
       "Type": "Task",
@@ -186,22 +198,6 @@
           "Status": {
             "S": "ACTIVE"
           }
-        }
-      },
-      "Next": "Trigger QA Step Function"
-    },
-    "Trigger QA Step Function": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::states:startExecution.sync:2",
-      "Parameters": {
-        "StateMachineArn": "arn:aws:states:us-east-1:326255650286:stateMachine:Build-QA",
-        "Input": {
-          "InstanceId.$": "$.Instance.Instances[0].InstanceId",
-          "BaseAmiId.$": "$.BaseAmiId",
-          "Paid.$": "$.Paid",
-          "NewAmiId.$": "$.Image.ImageId",
-          "NewAmiName.$": "$.DescribeImage.Images[0].Name",
-          "ExecutionId.$": "$$.Execution.Id"
         }
       },
       "Next": "TerminateInstance"
