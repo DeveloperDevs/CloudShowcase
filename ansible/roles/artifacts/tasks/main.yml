@@ -4,13 +4,11 @@
     state: directory
     mode: '0755'
 
-- name: Download product1.zip from S3
-  aws_s3:
-    bucket: base-template-devin
-    object: product1.zip
-    dest: /opt/codedeploy-scripts/product1.zip
-    region: us-east-1
-    mode: get
+- name: Download product1.zip from S3 using AWS CLI
+  command: >
+    aws s3 cp
+    s3://base-template-devin/product1.zip
+    /opt/codedeploy-scripts/product1.zip
 
 - name: Set permissions on product1.zip
   file:
