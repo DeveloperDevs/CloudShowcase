@@ -6,7 +6,7 @@ Let's break down a few of the processes that are in this repository, and the ite
 
 **Base Template:**
 
-It starts with the CloudFormation template, **basetemplate.yml**, which we will use to deploy the Infrastructure needed for the Base Template process. This contains:
+It starts with the CloudFormation template, **cloudformation/basetemplate.yml**, which we will use to deploy the Infrastructure needed for the Base Template process. This contains:
 - A CodeBuild Project
 - The CodeBuild Project's Service Role + Policy
 - An S3 Bucket (Will be used by the Base Template later)
