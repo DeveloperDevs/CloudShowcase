@@ -9,5 +9,10 @@
     bucket: base-template-devin
     object: product1.zip
     dest: /opt/codedeploy-scripts/product1.zip
-    mode: '0755'
     region: us-east-1
+    mode: get
+
+- name: Set permissions on product1.zip
+  file:
+    path: /opt/codedeploy-scripts/product1.zip
+    mode: '0755'
