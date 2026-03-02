@@ -28,14 +28,15 @@ Every release (monthly or quarterly), an internal build will be promoted to a re
 For the purposes of this showcase, I will not be adding the Azure equivalent
 
 The step function for the build process is in **(step-functions/internal-build.yml)**
+
 **Note:** 
-It is a lot more simplified compared to the ones at my previous job.
+This step function is a lot more simplified compared to the ones at my previous job, which would bundle multiple AMIs together to form a build
 
 <img width="252" height="562" alt="Screenshot 2026-03-02 at 11 18 51 AM" src="https://github.com/user-attachments/assets/3cb52821-1f19-48a6-b35d-4598e3063ca4" />
 
 Let's go through the steps:
 1. We will launch an instance from the base-template AMI
-2. Once the instance is running, we will invoke a Download Lambda, which will download additional patches to the base-template
+2. Once the instance is running, we will invoke a Download Lambda **(lambda/DownloadScriptsFromS3.py)**, which will download additional patches to the base-template
 3. **[Skipped due CodeDeploy being unavailable on Free Tier on AWS]** This the bulk of the "work for the build process: We will create deployment groups to execute the CodeDeploy scripts for each company product. Some of the files will already be on the instance (baked in from the BaseTemplate process) and some are patches downloaded during step 2
 4. After CodeDeploy finishes, we will create a new AMI for the build
 5. Once the AMI is ready, we will write the details to DynamoDB
