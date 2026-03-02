@@ -41,5 +41,10 @@ Let's go through the steps:
 4. After CodeDeploy finishes, we will create a new AMI for the build
 5. Once the AMI is ready, we will write the details to DynamoDB
 6. Last, we will invoke the QA Step Function, which will perform some QA checks on the instance before cleaning up
+</br>
+</br>
+
+**Build QA:**
+QA processes at my company operated at many level. One was a step function that operated at the build level, which was called by the build step functions
 
 
