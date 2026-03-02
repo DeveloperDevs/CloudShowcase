@@ -35,9 +35,9 @@ Here is the step function for the build process.
 Let's go through some of the steps
 1. We will launch an instance from the base-template AMI
 2. Once the instance is running, we will invoke a Download Lambda, which will download additional patches to the base-template
-3. [Skipped due CodeDeploy being unavailable on Free Tier on AWS] This is where bulk of the "work for the build process actually goes on. We will create deployment groups to execute the CodeDeploy scripts for each company product. Some of the files will already be on the instance (baked in from the BaseTemplate process) and some are patches from step 2
-4. We will create a new AMI for the build
-5. After the AMI is ready, we will write the details to DynamoDB
+3. **[Skipped due CodeDeploy being unavailable on Free Tier on AWS]** This the bulk of the "work for the build process: We will create deployment groups to execute the CodeDeploy scripts for each company product. Some of the files will already be on the instance (baked in from the BaseTemplate process) and some are patches downloaded during step 2
+4. After CodeDeploy finishes, we will create a new AMI for the build
+5. Once the AMI is ready, we will write the details to DynamoDB
 6. Last, we will invoke the QA Step Function, which will perform some QA checks on the instance before cleaning up
 
 
