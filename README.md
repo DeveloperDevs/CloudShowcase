@@ -29,6 +29,7 @@ For the purposes of this showcase, I will not be adding the Azure equivalent
 
 Here is the step function for the build process. 
 **Note:** It is a lot more simplified compared to the ones at work because the production process consists of multiple AMIs that can be bundled together (so multiple step functions would run and then converge to create the build, which would consist of multiple AMIs)
+
 <img width="252" height="562" alt="Screenshot 2026-03-02 at 11 18 51 AM" src="https://github.com/user-attachments/assets/3cb52821-1f19-48a6-b35d-4598e3063ca4" />
 
 Let's go through some of the steps
