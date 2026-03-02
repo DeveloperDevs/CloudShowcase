@@ -6,7 +6,7 @@ Let's break down a few of the processes that are in this repository, and the ite
 
 **Base Template:**
 
-It starts with the CloudFormation template, **cloudformation/basetemplate.yml**, which we will use to deploy the Infrastructure needed for the Base Template process. This contains:
+It starts with the CloudFormation template (**cloudformation/basetemplate.yml**) which we will use to deploy the Infrastructure needed for the Base Template process. This contains:
 - A CodeBuild Project
 - The CodeBuild Project's Service Role + Policy
 - An S3 Bucket (Will be used by the Base Template later)
@@ -27,7 +27,7 @@ Every release (monthly or quarterly), an internal build will be promoted to a re
 
 For the purposes of this showcase, I will not be adding the Azure equivalent
 
-The step function for the build process is in **(step-functions/internal-build.yml)**
+The step function for the build process is in (**step-functions/internal-build.yml**)
 
 **Note:** 
 This step function is a lot more simplified compared to the ones at my previous job, which would bundle multiple AMIs together to form a build
@@ -36,7 +36,7 @@ This step function is a lot more simplified compared to the ones at my previous 
 
 Let's go through the steps:
 1. We will launch an instance from the base-template AMI
-2. Once the instance is running, we will invoke a Download Lambda **(lambda/DownloadScriptsFromS3.py)**, which will download additional patches to the base-template
+2. Once the instance is running, we will invoke a Download Lambda (**lambda/DownloadScriptsFromS3.py**), which will download additional patches to the base-template
 3. **[Skipped due CodeDeploy being unavailable on Free Tier on AWS]** This the bulk of the "work for the build process: We will create deployment groups to execute the CodeDeploy scripts for each company product. Some of the files will already be on the instance (baked in from the BaseTemplate process) and some are patches downloaded during step 2
 4. After CodeDeploy finishes, we will create a new AMI for the build
 5. Once the AMI is ready, we will write the details to DynamoDB
