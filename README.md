@@ -45,6 +45,7 @@ Let's go through the steps:
 </br>
 
 **Build QA:**
+
 QA processes at my company operated at many level. One was a step function that operated at the build level, which was called by the build step functions
 
 
