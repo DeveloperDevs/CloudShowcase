@@ -1,5 +1,5 @@
 {
-  "Comment": "AMI Factory Pipeline - Main Step Function (No Catch)",
+  "Comment": "Internal Build",
   "StartAt": "LaunchInstance",
   "States": {
     "LaunchInstance": {
@@ -197,6 +197,7 @@
           }
         }
       },
+      "ResultPath": "$.DynamoDBResult",
       "Next": "InvokeBuildQA"
     },
     "InvokeBuildQA": {
@@ -206,6 +207,9 @@
         "StateMachineArn": "arn:aws:states:us-east-1:326255650286:stateMachine:Build-QA",
         "Input": {
           "InstanceId.$": "$.Instance.Instances[0].InstanceId",
+          "BaseAmiId.$": "$.BaseAmiId",
+          "Paid.$": "$.Paid",
+          "ImageId.$": "$.Image.ImageId",
           "justCleanup": false
         }
       },
