@@ -18,8 +18,8 @@ def lambda_handler(event, context):
     print(f"Paid: {paid}")
 
     commands = [
-        "sudo mkdir -p /opt/patch1",
-        f"sudo aws s3 cp s3://{bucket}/{key} /opt/patch1.zip",
+        "sudo mkdir -p /opt/patches",
+        f"sudo aws s3 cp s3://{bucket}/{key} /opt/patches/patch1.zip",
     ]
 
     # Send command
