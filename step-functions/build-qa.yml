@@ -1,0 +1,64 @@
+{
+  "Comment": "Build QA",
+  "StartAt": "CheckCleanupMode",
+  "States": {
+    "CheckCleanupMode": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.justCleanup",
+          "BooleanEquals": true,
+          "Next": "TerminateInstance"
+        }
+      ],
+      "Default": "CheckCodedeployScripts"
+    },
+    "CheckCodedeployScripts": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:326255650286:function:QACheckScripts:$LATEST",
+        "Payload.$": "$"
+      },
+      "ResultPath": "$.QALambdaResult",
+      "Next": "ValidateDynamoDB"
+    },
+    "ValidateDynamoDB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:getItem",
+      "Parameters": {
+        "TableName": "AmiRegistry",
+        "Key": {
+          "ID": {
+            "S.$": "$.ImageId"
+          }
+        }
+      },
+      "ResultPath": "$.DynamoResult",
+      "Next": "CheckIfExists"
+    },
+    "CheckIfExists": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.DynamoResult.Item",
+          "IsPresent": true,
+          "Next": "TerminateInstance"
+        }
+      ],
+      "Default": "FailState"
+    },
+    "TerminateInstance": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:ec2:terminateInstances",
+      "Parameters": {
+        "InstanceIds.$": "States.Array($.InstanceId)"
+      },
+      "End": true
+    },
+    "FailState": {
+      "Type": "Fail",
+      "Cause": "QA validation failed or AMI not found in DynamoDB"
+    }
+  }
+}
