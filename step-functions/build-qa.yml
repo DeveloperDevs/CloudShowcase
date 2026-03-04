@@ -11,9 +11,28 @@
           "Next": "TerminateInstance"
         }
       ],
-      "Default": "ValidateDynamoDB"
+      "Default": "CheckCodedeployScripts"
     },
-    "ValidateDynamoDB": {
+
+    "CheckCodedeployScripts": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:us-east-1:326255650286:function:QACheckScripts:$LATEST",
+        "Payload.$": "$"
+      },
+      "ResultPath": "$.QALambdaResult",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.QAError",
+          "Next": "FailState"
+        }
+      ],
+      "Next": "ValidateBuildDynamoDBEntry"
+    },
+
+    "ValidateBuildDynamoDBEntry": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:dynamodb:getItem",
       "Parameters": {
@@ -25,18 +44,9 @@
         }
       },
       "ResultPath": "$.DynamoResult",
-      "Next": "CheckCodedeployScripts"
-    },
-    "CheckCodedeployScripts": {
-      "Type": "Task",
-      "Resource": "arn:aws:states:::lambda:invoke",
-      "Parameters": {
-        "FunctionName": "arn:aws:lambda:us-east-1:326255650286:function:QACheckScripts:$LATEST",
-        "Payload.$": "$"
-      },
-      "ResultPath": "$.QALambdaResult",
       "Next": "CheckIfExists"
     },
+
     "CheckIfExists": {
       "Type": "Choice",
       "Choices": [
@@ -48,14 +58,43 @@
       ],
       "Default": "FailState"
     },
+
     "TerminateInstance": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:ec2:terminateInstances",
       "Parameters": {
         "InstanceIds.$": "States.Array($.InstanceId)"
       },
+      "ResultPath": "$.TerminateResult",
+      "Next": "RecordValidationResult"
+    },
+
+    "RecordValidationResult": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "AmiRegistry",
+        "Key": {
+          "ID": {
+            "S.$": "$.ImageId"
+          }
+        },
+        "UpdateExpression": "SET QAStatus = :status, QATimestamp = :timestamp, JustCleanup = :cleanup",
+        "ExpressionAttributeValues": {
+          ":status": {
+            "S": "PASSED"
+          },
+          ":timestamp": {
+            "S.$": "$$.State.EnteredTime"
+          },
+          ":cleanup": {
+            "BOOL.$": "$.justCleanup"
+          }
+        }
+      },
       "End": true
     },
+
     "FailState": {
       "Type": "Fail",
       "Cause": "QA validation failed or AMI not found in DynamoDB"
