@@ -57,4 +57,9 @@ Let's go through the steps:
 4. Next, we will validate the DynamoDB entry for the build number
 5. After the validation is complete, we will perform cleanup
 6. Finally, we will add the validation results to DynamoDB (and, while not included in this diagram, this is where we would publish a message to Slack/Teams about the build validation results, for stakeholders to monitor)
+</br>
+</br>
 
+**Provisioning:**
+
+Now that we have a build. We can provision an "Environment" of this build for internal/customer usage. We will use CloudFormation for this provisioning process.
