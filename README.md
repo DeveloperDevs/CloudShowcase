@@ -48,14 +48,18 @@ Let's go through the steps:
 
 QA processes at my company operated at many levels. One was a step function that operated at the build level, which was called by the build step function.
 
-<img width="516" height="452" alt="Screenshot 2026-03-04 at 10 11 01 AM" src="https://github.com/user-attachments/assets/4fe472a6-a884-4407-b7ea-af61c67509e0" />
-
+<img width="484" height="454" alt="Screenshot 2026-03-04 at 10 38 46 AM" src="https://github.com/user-attachments/assets/daf333be-9086-4e3f-9553-c4e46ff1633d" />
 
 
 Let's go through the steps:
 1. There is a flag that we pass in to the step function that will skip all the QA validation and proceed straight to cleanup
-2. If the flag is false, we will trigger a lambda that will check the outcome of the CodeDeploy scripts. (Right now I just have it check the directory structure but in our real company infrastructure, this step was actually many different lambdas that would validate various product-related things to ensure the CodeDeploy scripts executed successfully)
+2. If the flag is false, we will trigger a lambda that will check the outcome of the CodeDeploy scripts. (Right now I just have it check the directory structure but for the real company QA process, this "step" was actually a series of many different lambdas that would validate various product-related things)
 4. Next, we will validate the DynamoDB entry for the build number
 5. After the validation is complete, we will perform cleanup
-6. **Note:** This is also where we would add the validation results to DynamoDB and publish a message to Slack/Teams with the results
+6. Finally, we will add the validation results to DynamoDB (and, while not included in this diagram, this is where we would publish a message to Slack/Teams about the build validation results, for stakeholders to monitor)
+</br>
+</br>
 
+**Provisioning:**
+
+Now that we have a build. We can provision an "Environment" of this build for internal/customer usage. We will use CloudFormation for this provisioning process.
