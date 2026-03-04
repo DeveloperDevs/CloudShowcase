@@ -57,5 +57,5 @@ Let's go through the steps:
 2. If the flag is false, we will trigger a lambda that will check the outcome of the CodeDeploy scripts. (Right now I just have it check the directory structure but in our real company infrastructure, this step was actually many different lambdas that would validate various product-related things to ensure the CodeDeploy scripts executed successfully)
 4. Next, we will validate the DynamoDB entry for the build number
 5. After the validation is complete, we will perform cleanup
-6. ** Note:** This is also where we would add the validation results to DynamoDB and publish a message to Slack/Teams with the results
+6. **Note:** This is also where we would add the validation results to DynamoDB and publish a message to Slack/Teams with the results
 
