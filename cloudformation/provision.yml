@@ -1,5 +1,9 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Environment Stack
+Description: QA Environment Stack
+
+#################################
+# Parameters
+#################################
 
 Parameters:
   AmiId:
@@ -17,6 +21,13 @@ Parameters:
 
   PrivateSubnet1:
     Type: AWS::EC2::Subnet::Id
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet::Id
+
+#################################
+# Resources
+#################################
 
 Resources:
 
@@ -70,7 +81,7 @@ Resources:
       SourceSecurityGroupId: !Ref EC2SecurityGroup
 
   #################################
-  # Load Balancer
+  # Application Load Balancer
   #################################
 
   ApplicationLoadBalancer:
@@ -81,6 +92,12 @@ Resources:
         - !Ref PublicSubnet2
       SecurityGroups:
         - !Ref ALBSecurityGroup
+      Scheme: internet-facing
+      Type: application
+
+  #################################
+  # Target Group
+  #################################
 
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -89,9 +106,14 @@ Resources:
       Protocol: HTTP
       VpcId: !Ref VpcId
       TargetType: instance
+      HealthCheckPath: /
       Targets:
         - Id: !Ref AppInstance
           Port: 8080
+
+  #################################
+  # Listener
+  #################################
 
   Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -129,6 +151,18 @@ Resources:
         max_connections: 200
 
   #################################
+  # RDS Subnet Group (2 AZ Requirement)
+  #################################
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+
+  #################################
   # RDS Instance
   #################################
 
@@ -136,18 +170,27 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       Engine: mysql
+      EngineVersion: "8.0"
       DBInstanceClass: db.t3.micro
       AllocatedStorage: 20
       MasterUsername: admin
       MasterUserPassword: Password123!
       DBParameterGroupName: !Ref MyRDSParameterGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
       VPCSecurityGroups:
         - !Ref RDSSecurityGroup
-      DBSubnetGroupName: !Ref DBSubnetGroup
+      PubliclyAccessible: false
+      MultiAZ: false
 
-  DBSubnetGroup:
-    Type: AWS::RDS::DBSubnetGroup
-    Properties:
-      DBSubnetGroupDescription: Subnet group
-      SubnetIds:
-        - !Ref PrivateSubnet1
+#################################
+# Outputs
+#################################
+
+Outputs:
+  LoadBalancerDNS:
+    Description: DNS of the Load Balancer
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+
+  RdsEndpoint:
+    Description: RDS Endpoint
+    Value: !GetAtt MyRDS.Endpoint.Address
