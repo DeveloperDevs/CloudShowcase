@@ -68,7 +68,6 @@
       "ResultPath": "$.TerminateResult",
       "Next": "RecordValidationResult"
     },
-
     "RecordValidationResult": {
       "Type": "Task",
       "Resource": "arn:aws:states:::aws-sdk:dynamodb:updateItem",
@@ -88,7 +87,7 @@
             "S.$": "$$.State.EnteredTime"
           },
           ":cleanup": {
-            "BOOL.$": "$.justCleanup"
+            "S.$": "States.Format('{}', $.justCleanup)"
           }
         }
       },
