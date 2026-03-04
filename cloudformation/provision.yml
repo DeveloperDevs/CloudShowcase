@@ -89,6 +89,9 @@ Resources:
       Protocol: HTTP
       VpcId: !Ref VpcId
       TargetType: instance
+      Targets:
+        - Id: !Ref AppInstance
+          Port: 8080
 
   Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -112,13 +115,6 @@ Resources:
       SubnetId: !Ref PrivateSubnet1
       SecurityGroupIds:
         - !Ref EC2SecurityGroup
-
-  AttachInstanceToTG:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TargetGroup
-      TargetId: !Ref AppInstance
-      Port: 8080
 
   #################################
   # RDS Parameter Group
