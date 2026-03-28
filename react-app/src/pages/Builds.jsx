@@ -57,7 +57,6 @@ export default function Builds({ onDeploy }) {
             <tr>
               <th>AMI ID</th>
               <th>Name</th>
-              <th>Base AMI</th>
               <th>Created At</th>
               <th>Status</th>
               <th></th>
@@ -68,7 +67,6 @@ export default function Builds({ onDeploy }) {
               <tr key={build.ID}>
                 <td className="mono">{build.ID}</td>
                 <td>{build.AmiName}</td>
-                <td className="mono">{build.BaseAmi}</td>
                 <td>{new Date(build.CreatedAt).toLocaleString()}</td>
                 <td>
                   <span className={statusClass(build.Status)}>{build.Status}</span>

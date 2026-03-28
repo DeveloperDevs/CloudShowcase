@@ -3,17 +3,23 @@ import { CreateStackCommand } from "@aws-sdk/client-cloudformation";
 import { cfnClient } from "../aws";
 import templateBody from "../../../cloudformation/provision.yml?raw";
 
-const EMPTY_PARAMS = {
-  stackName: "",
-  vpcId: "",
-  publicSubnet1: "",
-  publicSubnet2: "",
-  privateSubnet1: "",
-  privateSubnet2: "",
-};
+const STORAGE_KEY = "cloudshowcase_network_defaults";
+
+function loadDefaults() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveNetworkDefaults(params) {
+  const { vpcId, publicSubnet1, publicSubnet2, privateSubnet1, privateSubnet2 } = params;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ vpcId, publicSubnet1, publicSubnet2, privateSubnet1, privateSubnet2 }));
+}
 
 export default function Deploy({ build, onCancel, onDeployed }) {
-  const [params, setParams] = useState(EMPTY_PARAMS);
+  const [params, setParams] = useState(() => ({ stackName: "", ...loadDefaults() }));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 

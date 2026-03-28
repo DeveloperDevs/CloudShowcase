@@ -44,7 +44,7 @@ export default function App() {
             className={`nav-link ${page === "stacks" ? "active" : ""}`}
             onClick={() => navigate("stacks")}
           >
-            Stacks
+            Environments
           </button>
         </div>
       </nav>

@@ -37,7 +37,10 @@ export default function Stacks({ highlightStack }) {
     setError(null);
     try {
       const result = await cfnClient.send(new DescribeStacksCommand({}));
-      setStacks(result.Stacks || []);
+      const filtered = (result.Stacks || []).filter(
+        (s) => s.StackName !== "BaseTemplateStack"
+      );
+      setStacks(filtered);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -74,7 +77,7 @@ export default function Stacks({ highlightStack }) {
   return (
     <div>
       <div className="page-header">
-        <h2>Stacks</h2>
+        <h2>Environments</h2>
         <button className="btn" onClick={fetchStacks} disabled={loading}>
           {loading ? "Loading..." : "Refresh"}
         </button>
