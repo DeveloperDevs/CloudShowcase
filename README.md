@@ -4,22 +4,36 @@ Let's break down a few of the processes that are in this repository, and the ite
 </br>
 </br>
 
+**React Application (react-app/):**
+
+A local React application for interacting with the cloud infrastructure. It allows you to browse available builds and deploy environments
+
+The app has two pages:
+
+- **Environments** — Lists all deployed CloudFormation stacks (excluding the BaseTemplateStack). Shows the stack status, creation time, Load Balancer DNS, and RDS endpoint. Stacks that are in-progress auto-refresh every 10 seconds. You can also delete stacks from this view.
+
+- **Create New Environment** — Lists all builds from the DynamoDB AmiRegistry table. Click Deploy on a build to open a form where you provide a stack name, VPC ID, and subnet IDs. The VPC and subnet values are saved and pre-filled for future deploys. Submitting the form triggers a CloudFormation CreateStack using the provisioning template (**cloudformation/provision.yml**).
+  </br>
+  </br>
+
 **Base Template:**
 
 It starts with the CloudFormation template (**cloudformation/basetemplate.yml**) which we will use to deploy the Infrastructure needed for the Base Template process. This contains:
+
 - A CodeBuild Project
 - The CodeBuild Project's Service Role + Policy
 - An S3 Bucket (Will be used by the Base Template later)
 
 Once the CloudFormation stack is created, we can trigger a CodeBuild job to create a new Base AMI. When the job is triggered, it will follow the **buildspec.yml**, which will do the following:
+
 - Install Packer, Ansible, Python, etc.
 - Initialize Packer, validate the Packer template (**amazon-linux.pkr.hcl**) and run Packer Build from the Template
 - Packer will launch a temporary VM
 - On the VM, Packer will run Ansible, which will run its playbook (located at **/ansible/playbook.yml**)
 - After the playbook is run, Packer will stop the VM, take a snapshot and then create an AMI with the snapshot.
 - The AMI will be the output that would be passed to the next process
-</br>
-</br>
+  </br>
+  </br>
 
 **Internal Build:**
 
@@ -29,20 +43,21 @@ For the purposes of this showcase, I will not be adding the Azure equivalent
 
 The step function for the build process is in (**step-functions/internal-build.yml**)
 
-**Note:** 
+**Note:**
 This step function is a lot more simplified compared to the ones at my previous job, which would bundle multiple AMIs together to form a build
 
 <img width="252" height="562" alt="Screenshot 2026-03-02 at 11 18 51 AM" src="https://github.com/user-attachments/assets/3cb52821-1f19-48a6-b35d-4598e3063ca4" />
 
 Let's go through the steps:
+
 1. We will launch an instance from the base-template AMI
 2. Once the instance is running, we will invoke a Download Lambda (**lambda/DownloadScriptsFromS3.py**), which will download additional patches to the base-template
 3. **[Skipped due CodeDeploy being unavailable on Free Tier on AWS]** This the bulk of the "work for the build process: We will create deployment groups to execute the CodeDeploy scripts for each company product. Some of the files will already be on the instance (baked in from the BaseTemplate process) and some are patches downloaded during step 2
 4. After CodeDeploy finishes, we will create a new AMI for the build
 5. Once the AMI is ready, we will write the details to DynamoDB
 6. Last, we will invoke the QA Step Function, which will perform some QA checks on the instance before cleaning up
-</br>
-</br>
+   </br>
+   </br>
 
 **Build QA:**
 
@@ -50,15 +65,15 @@ QA processes at my company operated at many levels. One was a step function (**s
 
 <img width="484" height="454" alt="Screenshot 2026-03-04 at 10 38 46 AM" src="https://github.com/user-attachments/assets/daf333be-9086-4e3f-9553-c4e46ff1633d" />
 
-
 Let's go through the steps:
+
 1. There is a flag that we pass in to the step function that will skip all the QA validation and proceed straight to cleanup
 2. If the flag is false, we will trigger a lambda that will check the outcome of the CodeDeploy scripts. (Right now I just have it check the directory structure but for the real company QA process, this "step" was actually a series of many different lambdas that would validate various product-related things)
-4. Next, we will validate the DynamoDB entry for the build number
-5. After the validation is complete, we will perform cleanup
-6. Finally, we will add the validation results to DynamoDB (and, while not included in this diagram, this is where we would publish a message to Slack/Teams about the build validation results, for stakeholders to monitor)
-</br>
-</br>
+3. Next, we will validate the DynamoDB entry for the build number
+4. After the validation is complete, we will perform cleanup
+5. Finally, we will add the validation results to DynamoDB (and, while not included in this diagram, this is where we would publish a message to Slack/Teams about the build validation results, for stakeholders to monitor)
+   </br>
+   </br>
 
 **Provisioning:**
 
@@ -66,11 +81,10 @@ Now that we have a build. We can provision an "Environment" of this build for in
 
 <img width="1215" height="684" alt="Screenshot 2026-03-04 at 5 32 10 PM" src="https://github.com/user-attachments/assets/2fd5524e-9c78-4a8e-b488-95a54d2ede15" />
 
-
 Here is what is provisioned:
+
 1. An EC2 Instance (w/ the build AMI)
 2. An RDS Instance
 3. A Load Balancer
 4. Security Groups for each
 5. Target, Parameter & Subnet Groups
-
