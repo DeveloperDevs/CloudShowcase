@@ -4,9 +4,9 @@ Let's break down a few of the processes that are in this repository, and the ite
 </br>
 </br>
 
-**React Application (react-app/):**
+**Cloud Deployment Console**
 
-A local React application for interacting with the cloud infrastructure. It allows you to browse available builds and deploy environments
+A React application for interacting with the cloud infrastructure. It allows you to browse available builds and deploy environments
 
 The app has two pages:
 
