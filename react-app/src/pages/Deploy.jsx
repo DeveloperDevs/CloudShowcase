@@ -47,6 +47,7 @@ export default function Deploy({ build, onCancel, onDeployed }) {
           Capabilities: ["CAPABILITY_IAM"],
         })
       );
+      saveNetworkDefaults(params);
       onDeployed(params.stackName);
     } catch (e) {
       setError(e.message);

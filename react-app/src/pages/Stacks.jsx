@@ -93,7 +93,7 @@ export default function Stacks({ highlightStack }) {
         <table className="builds-table">
           <thead>
             <tr>
-              <th>Stack Name</th>
+              <th>Environment Name</th>
               <th>Status</th>
               <th>Created</th>
               <th>Load Balancer DNS</th>

@@ -5,7 +5,7 @@ import Stacks from "./pages/Stacks";
 import "./App.css";
 
 export default function App() {
-  const [page, setPage] = useState("builds");
+  const [page, setPage] = useState("stacks");
   const [selectedBuild, setSelectedBuild] = useState(null);
   const [recentStack, setRecentStack] = useState(null);
 
@@ -35,16 +35,16 @@ export default function App() {
         <div className="nav-brand">CloudShowcase</div>
         <div className="nav-links">
           <button
-            className={`nav-link ${page === "builds" || page === "deploy" ? "active" : ""}`}
-            onClick={() => navigate("builds")}
-          >
-            Builds
-          </button>
-          <button
             className={`nav-link ${page === "stacks" ? "active" : ""}`}
             onClick={() => navigate("stacks")}
           >
             Environments
+          </button>
+          <button
+            className={`nav-link ${page === "builds" || page === "deploy" ? "active" : ""}`}
+            onClick={() => navigate("builds")}
+          >
+            Create New Environment
           </button>
         </div>
       </nav>
