@@ -12,11 +12,15 @@ The app has two pages:
 
 - **Environments** — Lists all deployed CloudFormation stacks (excluding the BaseTemplateStack). Shows the stack status, creation time, Load Balancer DNS, and RDS endpoint. Stacks that are in-progress auto-refresh every 10 seconds. You can also delete stacks from this view.
 
+<img width="1180" height="215" alt="Screenshot 2026-04-12 at 12 21 30 AM" src="https://github.com/user-attachments/assets/cb3250c9-c2f9-4167-a8b6-7a81161e8222" />
+
+<img width="1658" height="720" alt="Screenshot 2026-04-12 at 12 21 48 AM" src="https://github.com/user-attachments/assets/11a0e7ad-baea-4822-b1a7-e0636ce4923b" />
+
 - **Create New Environment** — Lists all builds from the DynamoDB AmiRegistry table. Click Deploy on a build to open a form where you provide a stack name, VPC ID, and subnet IDs. The VPC and subnet values are saved and pre-filled for future deploys. Submitting the form triggers a CloudFormation CreateStack using the provisioning template (**cloudformation/provision.yml**).
 
 <img width="1658" height="313" alt="Screenshot 2026-04-11 at 11 26 26 PM" src="https://github.com/user-attachments/assets/4da4cf13-3f1a-4306-9665-b8cd0c1963e7" />
 
-<img width="1157" height="594" alt="Screenshot 2026-04-11 at 11 28 05 PM" src="https://github.com/user-attachments/assets/a34b1eac-c0a7-4cd1-9680-002fc4179da2" />
+<img width="746" height="578" alt="Screenshot 2026-04-11 at 11 28 05 PM" src="https://github.com/user-attachments/assets/a86e34e5-daea-4046-8824-b9e7fac1de38" />
 
   </br>
   </br>
